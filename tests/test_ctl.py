@@ -12,7 +12,7 @@ from patroni.ctl import ctl, load_config, output_members, get_dcs, parse_dcs, \
     get_all_members, get_any_member, get_cursor, query_member, PatroniCtlException, apply_config_changes, \
     format_config_for_editing, show_diff, invoke_editor, format_pg_version, CONFIG_FILE_PATH, PatronictlPrettyTable
 from patroni.dcs import Cluster, Failover
-from patroni.postgresql.citus import get_mpp
+from patroni.postgresql.mpp import get_mpp
 from patroni.psycopg import OperationalError
 from patroni.utils import tzutc
 from prettytable import PrettyTable, ALL
@@ -213,7 +213,7 @@ class TestCtl(unittest.TestCase):
         # Citus cluster, no group number specified
         result = self.runner.invoke(ctl, ['switchover', 'dummy', '--force'], input='\n')
         self.assertEqual(result.exit_code, 1)
-        self.assertIn('For Citus clusters the --group must me specified', result.output)
+        self.assertIn('For MPP clusters the --group must me specified', result.output)
 
     @patch('patroni.dcs.AbstractDCS.set_failover_value', Mock())
     def test_failover(self):
@@ -408,7 +408,7 @@ class TestCtl(unittest.TestCase):
 
     def test_remove(self):
         result = self.runner.invoke(ctl, ['remove', 'dummy'], input='\n')
-        assert 'For Citus clusters the --group must me specified' in result.output
+        assert 'For MPP clusters the --group must me specified' in result.output
         result = self.runner.invoke(ctl, ['remove', 'alpha', '--group', '0'], input='alpha\nstandby')
         assert 'Please confirm' in result.output
         assert 'You are about to remove all' in result.output

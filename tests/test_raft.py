@@ -7,7 +7,7 @@ from mock import Mock, PropertyMock, patch
 from patroni.dcs import get_dcs
 from patroni.dcs.raft import Cluster, DynMemberSyncObj, KVStoreTTL, \
     Raft, RaftError, SyncObjUtility, TCPTransport, _TCPTransport
-from patroni.postgresql.citus import get_mpp
+from patroni.postgresql.mpp import get_mpp
 from pysyncobj import SyncObjConf, FAIL_REASON
 
 
@@ -156,7 +156,7 @@ class TestRaft(unittest.TestCase):
         self.assertTrue(raft.update_leader(leader, '1', failsafe={'foo': 'bat'}))
         self.assertTrue(raft._sync_obj.set(raft.failsafe_path, '{"foo"}'))
         self.assertTrue(raft._sync_obj.set(raft.status_path, '{'))
-        raft.get_citus_coordinator()
+        raft.get_mpp_coordinator()
         self.assertTrue(raft.delete_sync_state())
         self.assertTrue(raft.set_history_value(''))
         self.assertTrue(raft.delete_cluster())

@@ -24,7 +24,7 @@ from urllib3.exceptions import HTTPError, ReadTimeoutError, ProtocolError
 from . import AbstractDCS, Cluster, ClusterConfig, Failover, Leader, Member, Status, SyncState, \
     TimelineHistory, ReturnFalseException, catch_return_false_exception
 from ..exceptions import DCSError
-from ..postgresql.citus import AbstractMPP
+from ..postgresql.mpp import AbstractMPP
 from ..request import get as requests_get
 from ..utils import Retry, RetryFailedError, split_host_port, uri, USER_AGENT
 if TYPE_CHECKING:  # pragma: no cover
@@ -710,7 +710,7 @@ class Etcd(AbstractEtcd):
 
         return Cluster(initialize, config, leader, status, members, failover, sync, history, failsafe)
 
-    def _cluster_loader(self, path: str) -> Cluster:
+    def _postgresql_cluster_loader(self, path: str) -> Cluster:
         try:
             result = self.retry(self._client.read, path, recursive=True, quorum=self._ctl)
         except etcd.EtcdKeyNotFound:
@@ -718,7 +718,7 @@ class Etcd(AbstractEtcd):
         nodes = {node.key[len(result.key):].lstrip('/'): node for node in result.leaves}
         return self._cluster_from_nodes(result.etcd_index, nodes)
 
-    def _citus_cluster_loader(self, path: str) -> Dict[int, Cluster]:
+    def _mpp_cluster_loader(self, path: str) -> Dict[int, Cluster]:
         try:
             result = self.retry(self._client.read, path, recursive=True, quorum=self._ctl)
         except etcd.EtcdKeyNotFound:
